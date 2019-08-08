@@ -20,6 +20,6 @@ export const fetchPeople = (url) => {
   return { type: types.REQUEST_PEOPLE, url }
 };
 
-export const fetchPerson = () => {
-  return { type: types.REQUEST_PERSON }
+export const fetchPerson = (id) => {
+  return { type: types.REQUEST_PERSON, id }
 };

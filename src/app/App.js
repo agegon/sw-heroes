@@ -9,7 +9,7 @@ export default class App extends Component {
     return (
       <Router>
         <Switch>
-          <Route path='/people/:id' component={HeroesList} />
+          <Route path='/people/:id' component={hello} />
           <Route path='/' exact component={HeroesList} />
           <Redirect to='/' />
         </Switch>
@@ -17,3 +17,5 @@ export default class App extends Component {
     );
   }
 }
+
+const hello = props => (<h1>Hello {props.match.params.id}!</h1>);
