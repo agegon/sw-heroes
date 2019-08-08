@@ -22,7 +22,9 @@ module.exports = {
     historyApiFallback: true,
     port: 7070,
     hot: true,
-    overlay: true
+    overlay: true,
+    contentBase: ['./src', './public'],
+    watchContentBase: true
   },
   module: {
     rules: [

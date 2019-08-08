@@ -16,6 +16,7 @@
         "regenerator": true,
         "useESModules": true
       }
-    ]
+    ],
+    "react-hot-loader/babel"
   ]
 }
