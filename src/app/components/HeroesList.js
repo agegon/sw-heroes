@@ -1,11 +1,18 @@
 import React, { Component } from 'react';
 import { connect } from  'react-redux';
-import * as actions from '../store/actions';
+import { Link } from "react-router-dom";
 
 import InfiniteScroll from 'react-infinite-scroller';
 import { isNull } from 'util';
+import * as actions from '../store/actions';
 
 class HeroesList extends Component {
+
+  getId = (url) => {
+    const regId = /(?<=\/)\d+(?=\/?$)/;
+    const id = url.match(regId);
+    return isNull(id) ? '' : id[0];
+  }
 
   loadMore = () => {
     this.props.fetchPeople(this.props.next);
@@ -21,11 +28,14 @@ class HeroesList extends Component {
         hasMore={hasMore}
         loader={<div className="loader" key={0}>Loading ...</div>}
       >
-        <h1>Star Wars heroes!</h1>
         <ul>
           {
             keys.map((i, k) => (
-              <li key={k}>{ this.props.people[i].name }</li>
+              <li key={`person_${k}`}>
+                <Link to={`/people/${this.getId(this.props.people[i].url)}`}>
+                  { this.props.people[i].name }
+                </Link>
+              </li>
             ))
           }
         </ul>
