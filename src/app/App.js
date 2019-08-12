@@ -6,12 +6,18 @@ import HeroesList from './components/HeroesList';
 export default function App() {
   return (
     <Router>
-      <h1>Star Wars heroes!</h1>
-      <HeroesList />
+      <header className='header'>
+        <h1 className='header__title'>Star Wars heroes!</h1>
+      </header>
+      <div className='layout-wrap'>
+        <aside>
+          <Route path={['/people/:id', '/']} component={HeroesList} />
+        </aside>
         <Switch>
           <Route path='/people/:id' component={hello} />
           <Redirect to='/' />
         </Switch>
+      </div>
     </Router>
   );
 }

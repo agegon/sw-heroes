@@ -1,0 +1,35 @@
+@import '../fonts/StarJedi/stylesheet.css';
+
+body {
+  position: absolute;
+  top: 0;  bottom: 0;
+  left: 0; right: 0;
+}
+
+:global #root {
+  height: 100%;
+}
+
+:global .header {
+  box-sizing: border-box;
+  height: 70px;
+  overflow: hidden;
+  background-color: rgb(30, 30, 30);
+  color: rgb(255, 255, 0);
+  font-family: 'Star Jedi';
+  border-bottom: 2px solid rgba(255, 255, 0, .8);
+  &__title {
+    margin: 0.5em 0px;
+    padding: 0 20px;
+    letter-spacing: 5px;
+  }
+}
+aside {
+  width: 300px;
+  height: 100%;
+}
+
+:global .layout-wrap {
+  display: flex;
+  height: calc(100% - 70px);
+}
