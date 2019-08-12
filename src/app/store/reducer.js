@@ -1,4 +1,5 @@
 import * as types from './actionTypes';
+import { isNull } from 'util';
 
 const initialState = {
   nextPage: 'https://swapi.co/api/people/',
@@ -8,17 +9,23 @@ const initialState = {
   speciesCache: {},
   vehiclesCache: {},
   starshipsCache: {},
-  loading: false,
-  error: false,
+  peopleStatus: { loading: true, error: false },
+  personStatus: { loading: true, error: false },
 };
 
 const reducer = function(state = initialState, action) {
   switch (action.type) {
-    case types.REQUEST_STARTED: 
-      return { loading: true, error: false, ...state };
-    case types.REQUEST_FAILED: 
-      return { loading: false, error: true, ...state };
-    case types.REQUEST_PEOPLE_SUCCESS: 
+    case types.REQUEST_PEOPLE_STARTED: 
+      return { 
+        ...state, 
+        peopleStatus: { loading: true, error: false  },
+      };
+    case types.REQUEST_PEOPLE_FAILED: 
+      return { 
+        ...state, 
+        peopleStatus: { loading: false, error: true  },
+      };
+    case types.REQUEST_PEOPLE_SUCCESS:
       return setPeopleToState(state, action.data);
     default:
       return state;
@@ -28,12 +35,23 @@ const reducer = function(state = initialState, action) {
 export default reducer;
 
 const setPeopleToState = (state, data) => {
-  const newState = { loading: false, error: false, ...state };
-  newState.nextPage = data.next;
-  const newPeopleCache = { ...newState.peopleCache };
+  const peopleCache = { ...state.peopleCache };
   data.results.forEach(e => {
-    newPeopleCache[e.url] = e;
+    peopleCache[getId(e.url)] = e;
   });
-  newState.peopleCache = newPeopleCache;
+
+  const newState = {
+    ...state,
+    peopleStatus: { loading: false, error: false },
+    nextPage: data.next,
+    peopleCache
+  };
+
   return newState;
+}
+
+const getId = url => {
+  const regId = /(?<=\/)\d+(?=\/?$)/;
+  const id = url.match(regId);
+  return isNull(id) ? Date.now() : id[0];
 }

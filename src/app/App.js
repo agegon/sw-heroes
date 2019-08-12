@@ -1,12 +1,19 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Route, Redirect, Switch } from "react-router-dom";
 
-export default class App extends Component {
+import HeroesList from './components/HeroesList';
 
-  render() {
-    return (
-      <div>
-        <h1>Hello world!</h1>
-      </div>
-    );
-  }
+export default function App() {
+  return (
+    <Router>
+      <h1>Star Wars heroes!</h1>
+      <HeroesList />
+        <Switch>
+          <Route path='/people/:id' component={hello} />
+          <Redirect to='/' />
+        </Switch>
+    </Router>
+  );
 }
+
+const hello = props => (<h1>Hello {props.match.params.id}!</h1>);

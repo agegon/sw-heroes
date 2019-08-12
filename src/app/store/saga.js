@@ -1,6 +1,6 @@
-import { call, put, takeEvery } from 'redux-saga/effects';
+import { call, put, all, select, takeEvery } from 'redux-saga/effects';
 import * as types from './actionTypes';
-import { requestStarted, requestPeopleSuccess, requestFailed } from './actions';
+import { requestPeopleStarted, requestPeopleFailed, requestPeopleSuccess } from './actions';
 
 export default function* watcher() {
   yield takeEvery(types.REQUEST_PEOPLE, fetchPeopleAsync);
@@ -8,14 +8,14 @@ export default function* watcher() {
 
 function* fetchPeopleAsync(action) {
   try {
-    yield put(requestStarted());
-    const data = yield call(() => {
-      return fetch(action.url)
-        .then(res => res.json())
-      }
-    );
+    yield put(requestPeopleStarted());
+    const data = yield call(fetchData, action.url);
     yield put(requestPeopleSuccess(data));
   } catch (error) {
-    yield put(requestFailed());
+    yield put(requestPeopleFailed());
   }
+}
+
+const fetchData = url => {
+  return fetch(url).then(res => res.json());
 }
