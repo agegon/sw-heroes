@@ -17,7 +17,7 @@ module.exports = {
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, 'public'),
-    publicPath: '/'
+    publicPath: process.env.PUBLIC_PATH || '/'
   },
   devServer: {
     historyApiFallback: true,
@@ -44,6 +44,7 @@ module.exports = {
               modules: { 
                 mode: 'local',
                 localIdentName: '[path][name]__[local]--[hash:base64:5]' },
+                localsConvention: 'camelCase'
             },
           },
           'sass-loader',
@@ -60,7 +61,12 @@ module.exports = {
       },
       {
         test: /\.(woff|woff2|eot|ttf|otf|svg)$/,
-        use: [ 'file-loader' ]
+        use: [
+          {
+            loader: 'file-loader',
+            options: { name: '[path][name].[ext]' },
+          },
+        ],
       }
     ],
   },

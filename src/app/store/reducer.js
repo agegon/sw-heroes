@@ -1,16 +1,15 @@
 import * as types from './actionTypes';
-import { isNull } from 'lodash';
+import { get, isNull } from 'lodash';
 
 const initialState = {
   nextPage: 'https://swapi.co/api/people/',
-  peopleCount: 10,
-  peopleIdList: [],
-  peopleCache: {},
-  planetsCache: {},
-  filmsCache: {},
-  speciesCache: {},
-  vehiclesCache: {},
-  starshipsCache: {},
+  peopleCount: null,
+  peopleCache: [],
+  planetsCache: [],
+  filmsCache: [],
+  speciesCache: [],
+  vehiclesCache: [],
+  starshipsCache: [],
   peopleStatus: { loading: false, error: false },
   personStatus: { loading: false, error: false },
 };
@@ -37,25 +36,25 @@ const reducer = function(state = initialState, action) {
 export default reducer;
 
 const setPeopleToState = (state, data) => {
-  const peopleCache = { ...state.peopleCache };
-  const peopleIdList = [ ...state.peopleIdList ];
-  data.results.forEach(e => {
-    const id = getId(e.url);
-    if (peopleIdList.indexOf(id) === -1) {
-      peopleCache[id] = e;
-      peopleIdList.push(id);
-    }
-  });
+
+  const receivedData = get(data, 'results', [])
+    .map(item => {
+      item.id = getId(item.url)
+      return item;
+    });
+
+  const peopleCache = [ 
+    ...state.peopleCache,
+    ...receivedData
+  ];
 
   const newState = {
     ...state,
-    peopleStatus: { loading: false, error: false },
-    nextPage: data.next,
+    nextPage: get(data, 'next'),
+    peopleCount: get(data, 'count'),
     peopleCache,
-    peopleIdList,
-    peopleCount: data.count
+    peopleStatus: { loading: false, error: false },
   };
-
   return newState;
 }
 

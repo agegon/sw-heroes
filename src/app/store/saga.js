@@ -12,6 +12,7 @@ function* fetchPeopleAsync(action) {
     const data = yield call(fetchData, action.url);
     yield put(requestPeopleSuccess(data));
   } catch (error) {
+    console.log(error);
     yield put(requestPeopleFailed());
   }
 }

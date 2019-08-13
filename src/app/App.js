@@ -5,7 +5,7 @@ import HeroesList from './components/HeroesList';
 
 export default function App() {
   return (
-    <Router>
+    <Router basename={__webpack_public_path__ || '/'}>
       <header className='header'>
         <h1 className='header__title'>Star Wars heroes!</h1>
       </header>

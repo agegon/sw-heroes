@@ -3,69 +3,109 @@ import { connect } from  'react-redux';
 import { Link } from 'react-router-dom';
 
 import InfiniteScroll from 'react-infinite-scroller';
-import { isNull } from 'lodash';
-import * as actions from '../store/actions';
+import { isNull, uniqueId } from 'lodash';
+import { fetchPeople } from '../store/actions';
 import * as styles from './HeroesList.scss';
 
 class HeroesList extends Component {
 
-  loadMore = () => {
-    this.props.fetchPeople(this.props.next);
+  constructor(props) {
+    super(props);
+    this.state = {
+      peopleToLoading: [],
+      hasMore: true
+    }
   }
 
-  renderListItem = props => {
-    let firstLetter = props.name ? props.name.match(/\w/) : '';
-    firstLetter = firstLetter ? firstLetter[0].toUpperCase() : '';
-    const isActive = this.props.match.params.id === props.id;
+  componentDidUpdate(prevProps) {
+    const { people, count, next } = this.props;
+    const countLoaded = people.length - prevProps.people.length;
+    if (countLoaded > 0) {
+      // was received data with people
+      const countToShow = prevProps.people.length + this.state.peopleToLoading.length;
+      if (isNull(next)) {
+        // nothing to load
+        this.setState({ peopleToLoading: [], hasMore: false });
+      } else if (isNull(count) || countToShow < count) {
+        // if loading not complete and scroll is not in the end list
+        const peopleToLoading = this.state.peopleToLoading.slice(countLoaded);
+        this.setState({ peopleToLoading, hasMore: true });
+      } else {
+        // if scroll is over the end list
+        const peopleToLoading = this.state.peopleToLoading.slice(0, count - people.length);
+        this.setState({ peopleToLoading, hasMore: false });
+      }
+      return;
+    }
+    if (this.state.peopleToLoading.length > 0) {
+      this.loadNext();
+    }
+  }
+
+  loadNext = () => {
+    const { fetchPeople, next, loading } = this.props;
+    if (!isNull(next) && !loading) {
+      fetchPeople(next);
+    }
+  }
+
+  scrollHandler = () => {
+    const { count, people } = this.props;
+    const { peopleToLoading } = this.state;
+    const countToShow = peopleToLoading.length + people.length;
+    if (isNull(count) || countToShow < count) {
+      this.setState({
+        peopleToLoading: [
+          ...peopleToLoading, 
+          { isLoading: true }
+        ],
+        hasMore: true
+      });
+    } else {
+      this.setState({ hasMore: false });
+    }
+  }
+
+  renderListItem = ({name = '', isLoading = false, id}) => {
+    const firstChar = name.length > 0 ? name[0] : '';
+    const linkIsActive = this.props.match.params.id === id;
+
     return (
-      <li className={styles['person']} key={`person_${props.id}`}>
-        {!props.isLoading && 
-          <Link to={`/people/${props.id}`} 
-            className={styles['person__link'] + 
-              (isActive ? ' ' + styles['person__link_active'] : '')
+      <li className={styles.person} key={uniqueId('person_')}>
+        {!isLoading && 
+          <Link to={`/people/${id}`} 
+            className={styles.personLink + 
+              (linkIsActive ? ' ' + styles.PersonLinkActive : '')
             }
           >
-            <div 
-              className={styles['person__avatar']}
-            >
-              {firstLetter}
+            <div className={styles.personAvatar}>
+              {firstChar.toUpperCase()}
             </div>
-            <div className={styles['person__name']}>
-              { props.name }
+            <div className={styles.personName}>
+              {name}
             </div>
           </Link>
         }
-        {props.isLoading && <div className={styles['person__loading']}></div>}
+        {isLoading && <div className={styles.personLoading}></div>}
       </li>
     );
   }
 
   render() {
-    const { idList, isLoading, next, peopleCount, people } = this.props;
-    const hasMore = !isNull(next);
-    let toLoad = peopleCount - idList.length;
-    toLoad = toLoad > 10 ? 10 : toLoad;
-    const dummy = [];
-
-    if (isLoading) {
-      for (let i = 0; i < toLoad; i++) {
-        dummy.push(i);
-      }
-    }
-
+    const { hasMore, peopleToLoading } = this.state;
+    const { people } = this.props;
     return (
-      <div className={styles['people']}>
-          <InfiniteScroll
-            pageStart={0}
-            loadMore={this.loadMore}
-            hasMore={!isLoading && hasMore}
-            useWindow={false}
-          >
-            <ul className={styles['people__list']}>
-              {idList.map(i => this.renderListItem({id: i, name: people[i].name}))}
-              {dummy.map(i => this.renderListItem({id: 'dummy_' + i, isLoading: true}))}
-            </ul>
-          </InfiniteScroll>
+      <div className={styles.people}>
+        <InfiniteScroll
+          loadMore={this.scrollHandler}
+          hasMore={hasMore}
+          useWindow={false}
+        >
+          <ul className={styles.peopleList}>
+            {people.map(i => this.renderListItem(i))}
+            {peopleToLoading.map(i => this.renderListItem(i))}
+          </ul>
+        </InfiniteScroll>
       </div>
     );
   }
@@ -74,12 +114,10 @@ class HeroesList extends Component {
 const mapStateToProps = function(state) {
   return { 
     people: state.peopleCache, 
-    idList: state.peopleIdList, 
     next: state.nextPage,
-    isLoading: state.peopleStatus.loading,
-    hasError: state.peopleStatus.error,
-    peopleCount: state.peopleCount
+    count: state.peopleCount,
+    ...state.peopleStatus 
   };
 }
 
-export default connect(mapStateToProps, actions)(HeroesList);
+export default connect(mapStateToProps, { fetchPeople })(HeroesList);
