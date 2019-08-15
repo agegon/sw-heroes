@@ -22,7 +22,8 @@ before_install:
 install:
   - npm install
 before_script:
-  - if [$TRAVIS_BRANCH == "master"]; then export PUBLIC_PATH='/sw-heroes/'; else export PUBLIC_PATH='/sw-heroes/dev/'; fi
+  - if [ $TRAVIS_BRANCH = "master" ]; then export PUBLIC_PATH='/sw-heroes/'; else export PUBLIC_PATH='/sw-heroes/dev/'; fi
+  - echo $PUBLIC_PATH
 script:
   - npm run dev
 deploy:

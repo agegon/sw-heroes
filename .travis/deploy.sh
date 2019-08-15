@@ -14,7 +14,7 @@ rm -f .gitignore
 cp ../.travis/deployignore .gitignore
 
 if [ $TRAVIS_BRANCH != "master" ]; then 
-  git checkout -b dev
+  git checkout -b dev;
 fi
 
 # commit and push files to remote
@@ -23,7 +23,8 @@ git status # debug
 git commit -m "Deploy files..."
 git remote add deploy "$REMOTE_USER@$REMOTE_HOST:$REMOTE_APP_DIR"
 
-if [ $TRAVIS_BRANCH == "master" ]; then 
+if [ $TRAVIS_BRANCH = "master" ]
+then 
   git push -f deploy master
 else
   git push -f deploy dev
