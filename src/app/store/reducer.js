@@ -1,16 +1,17 @@
 import * as types from './actionTypes';
-import { isNull } from 'util';
+import { get, isNull } from 'lodash';
 
 const initialState = {
   nextPage: 'https://swapi.co/api/people/',
-  peopleCache: {},
-  planetsCache: {},
-  filmsCache: {},
-  speciesCache: {},
-  vehiclesCache: {},
-  starshipsCache: {},
-  peopleStatus: { loading: true, error: false },
-  personStatus: { loading: true, error: false },
+  peopleCount: null,
+  peopleCache: [],
+  planetsCache: [],
+  filmsCache: [],
+  speciesCache: [],
+  vehiclesCache: [],
+  starshipsCache: [],
+  peopleStatus: { loading: false, error: false },
+  personStatus: { loading: false, error: false },
 };
 
 const reducer = function(state = initialState, action) {
@@ -35,18 +36,25 @@ const reducer = function(state = initialState, action) {
 export default reducer;
 
 const setPeopleToState = (state, data) => {
-  const peopleCache = { ...state.peopleCache };
-  data.results.forEach(e => {
-    peopleCache[getId(e.url)] = e;
-  });
+
+  const receivedData = get(data, 'results', [])
+    .map(item => {
+      item.id = getId(item.url)
+      return item;
+    });
+
+  const peopleCache = [ 
+    ...state.peopleCache,
+    ...receivedData
+  ];
 
   const newState = {
     ...state,
+    nextPage: get(data, 'next'),
+    peopleCount: get(data, 'count'),
+    peopleCache,
     peopleStatus: { loading: false, error: false },
-    nextPage: data.next,
-    peopleCache
   };
-
   return newState;
 }
 

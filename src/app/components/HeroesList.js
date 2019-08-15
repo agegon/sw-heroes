@@ -3,43 +3,121 @@ import { connect } from  'react-redux';
 import { Link } from 'react-router-dom';
 
 import InfiniteScroll from 'react-infinite-scroller';
-import { isNull } from 'util';
-import * as actions from '../store/actions';
+import { isNull, uniqueId } from 'lodash';
+import { fetchPeople } from '../store/actions';
+import * as styles from './HeroesList.scss';
 
 class HeroesList extends Component {
 
-  loadMore = () => {
-    this.props.fetchPeople(this.props.next);
+  constructor(props) {
+    super(props);
+    this.state = {
+      peopleToLoading: [],
+      hasMore: true
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const { people, count, next } = this.props;
+    const countLoaded = people.length - prevProps.people.length;
+    if (countLoaded > 0) {
+      // was received data with people
+      const countToShow = prevProps.people.length + this.state.peopleToLoading.length;
+      if (isNull(next)) {
+        // nothing to load
+        this.setState({ peopleToLoading: [], hasMore: false });
+      } else if (isNull(count) || countToShow < count) {
+        // if loading not complete and scroll is not in the end list
+        const peopleToLoading = this.state.peopleToLoading.slice(countLoaded);
+        this.setState({ peopleToLoading, hasMore: true });
+      } else {
+        // if scroll is over the end list
+        const peopleToLoading = this.state.peopleToLoading.slice(0, count - people.length);
+        this.setState({ peopleToLoading, hasMore: false });
+      }
+      return;
+    }
+    if (this.state.peopleToLoading.length > 0) {
+      this.loadNext();
+    }
+  }
+
+  loadNext = () => {
+    const { fetchPeople, next, loading } = this.props;
+    if (!isNull(next) && !loading) {
+      fetchPeople(next);
+    }
+  }
+
+  scrollHandler = () => {
+    const { count, people } = this.props;
+    const { peopleToLoading } = this.state;
+    const countToShow = peopleToLoading.length + people.length;
+    if (isNull(count) || countToShow < count) {
+      this.setState({
+        peopleToLoading: [
+          ...peopleToLoading, 
+          { isLoading: true }
+        ],
+        hasMore: true
+      });
+    } else {
+      this.setState({ hasMore: false });
+    }
+  }
+
+  renderListItem = ({name = '', isLoading = false, id}) => {
+    const firstChar = name.length > 0 ? name[0] : '';
+    const linkIsActive = this.props.match.params.id === id;
+
+    return (
+      <li className={styles.person} key={uniqueId('person_')}>
+        {!isLoading && 
+          <Link to={`/people/${id}`} 
+            className={styles.personLink + 
+              (linkIsActive ? ' ' + styles.PersonLinkActive : '')
+            }
+          >
+            <div className={styles.personAvatar}>
+              {firstChar.toUpperCase()}
+            </div>
+            <div className={styles.personName}>
+              {name}
+            </div>
+          </Link>
+        }
+        {isLoading && <div className={styles.personLoading}></div>}
+      </li>
+    );
   }
 
   render() {
-    const keys = Object.keys(this.props.people);
-    const hasMore = !isNull(this.props.next);
+    const { hasMore, peopleToLoading } = this.state;
+    const { people } = this.props;
     return (
-      <InfiniteScroll
-        pageStart={0}
-        loadMore={this.loadMore}
-        hasMore={hasMore}
-        loader={<div className="loader" key={0}>Loading ...</div>}
-      >
-        <ul>
-          {
-            keys.map(i => (
-              <li key={`person_${i}`}>
-                <Link to={`/people/${i}`}>
-                  { this.props.people[i].name }
-                </Link>
-              </li>
-            ))
-          }
-        </ul>
-      </InfiniteScroll> 
+      <div className={styles.people}>
+        <InfiniteScroll
+          loadMore={this.scrollHandler}
+          hasMore={hasMore}
+          useWindow={false}
+        >
+          <ul className={styles.peopleList}>
+            {people.map(i => this.renderListItem(i))}
+            {peopleToLoading.map(i => this.renderListItem(i))}
+          </ul>
+        </InfiniteScroll>
+      </div>
     );
   }
 }
 
 const mapStateToProps = function(state) {
-  return { people: state.peopleCache, next: state.nextPage };
+  return { 
+    people: state.peopleCache, 
+    next: state.nextPage,
+    count: state.peopleCount,
+    ...state.peopleStatus 
+  };
 }
 
-export default connect(mapStateToProps, actions)(HeroesList);
+export default connect(mapStateToProps, { fetchPeople })(HeroesList);

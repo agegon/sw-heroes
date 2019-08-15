@@ -17,6 +17,7 @@ module.exports = {
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, 'public'),
+    publicPath: process.env.PUBLIC_PATH || '/'
   },
   devServer: {
     historyApiFallback: true,
@@ -39,7 +40,12 @@ module.exports = {
           MiniCSSExtractPlugin.loader,
           {
             loader: 'css-loader',
-            options: { modules: true },
+            options: {
+              modules: { 
+                mode: 'local',
+                localIdentName: '[path][name]__[local]--[hash:base64:5]' },
+                localsConvention: 'camelCase'
+            },
           },
           'sass-loader',
         ],
@@ -53,6 +59,15 @@ module.exports = {
           },
         ],
       },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf|svg)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: { name: '[path][name].[ext]' },
+          },
+        ],
+      }
     ],
   },
   plugins: [
@@ -64,9 +79,8 @@ module.exports = {
     ]),
     new webpack.HotModuleReplacementPlugin(),
     new HtmlWebpackPlugin({
-      filename: './index.html',
       template: './src/index.html',
-      inject: false
+      title: 'SW Heroes',
     }),
     new MiniCSSExtractPlugin({ 
       filename: '[name].css'

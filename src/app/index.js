@@ -8,6 +8,8 @@ import App from './App';
 import reducer from './store/reducer';
 import watcher from './store/saga';
 
+import './index.scss';
+
 const sagaMiddleware = createSagaMiddleware();
 
 const store = createStore(reducer, applyMiddleware(sagaMiddleware));
