@@ -3,6 +3,7 @@ import { connect } from  'react-redux';
 import { Link } from 'react-router-dom';
 
 import InfiniteScroll from 'react-infinite-scroller';
+import { Scrollbars } from 'react-custom-scrollbars';
 import { isNull, uniqueId } from 'lodash';
 import { fetchPeople } from '../store/actions';
 import * as styles from './HeroesList.scss';
@@ -75,7 +76,7 @@ class HeroesList extends Component {
         {!isLoading && 
           <Link to={`/people/${id}`} 
             className={styles.personLink + 
-              (linkIsActive ? ' ' + styles.PersonLinkActive : '')
+              (linkIsActive ? ' ' + styles.personLinkActive : '')
             }
           >
             <div className={styles.personAvatar}>
@@ -96,16 +97,18 @@ class HeroesList extends Component {
     const { people } = this.props;
     return (
       <div className={styles.people}>
-        <InfiniteScroll
-          loadMore={this.scrollHandler}
-          hasMore={hasMore}
-          useWindow={false}
-        >
-          <ul className={styles.peopleList}>
-            {people.map(i => this.renderListItem(i))}
-            {peopleToLoading.map(i => this.renderListItem(i))}
-          </ul>
-        </InfiniteScroll>
+        <Scrollbars>
+          <InfiniteScroll
+            loadMore={this.scrollHandler}
+            hasMore={hasMore}
+            useWindow={false}
+          >
+            <ul className={styles.peopleList}>
+              {people.map(i => this.renderListItem(i))}
+              {peopleToLoading.map(i => this.renderListItem(i))}
+            </ul>
+          </InfiniteScroll>
+        </Scrollbars>
       </div>
     );
   }

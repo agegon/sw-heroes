@@ -10,6 +10,7 @@ const initialState = {
   speciesCache: [],
   vehiclesCache: [],
   starshipsCache: [],
+  currentPerson: {},
   peopleStatus: { loading: false, error: false },
   personStatus: { loading: false, error: false },
 };
@@ -28,6 +29,24 @@ const reducer = function(state = initialState, action) {
       };
     case types.REQUEST_PEOPLE_SUCCESS:
       return setPeopleToState(state, action.data);
+    case types.REQUEST_PERSON_STARTED: 
+      return { 
+        ...state, 
+        personStatus: { loading: true, error: false  },
+      };
+    case types.REQUEST_PERSON_FAILED: 
+      return { 
+        ...state, 
+        personStatus: { loading: false, error: true  },
+      };
+    case types.REQUEST_PERSON_SUCCESS:
+        return { 
+          ...state, 
+          currentPerson: action.person,
+          personStatus: { loading: false, error: false  },
+        };
+    case types.REQUEST_DATA_SUCCESS:
+        return setDataToState(state, action.data, action.cache);
     default:
       return state;
   }
@@ -55,6 +74,13 @@ const setPeopleToState = (state, data) => {
     peopleCache,
     peopleStatus: { loading: false, error: false },
   };
+  return newState;
+}
+
+const setDataToState = (state, data, cache) => {
+  const newState = { ...state };
+  newState[cache] = [ ...state[cache], ...data ];
+  newState.personStatus = { loading: false, error: false };
   return newState;
 }
 
