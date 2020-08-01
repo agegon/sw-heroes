@@ -67,12 +67,12 @@ class HeroesList extends Component {
     }
   }
 
-  renderListItem = ({name = '', isLoading = false, id}) => {
+  renderListItem = ({name = '', isLoading = false, id}, index) => {
     const firstChar = name.length > 0 ? name[0] : '';
     const linkIsActive = this.props.match.params.id === id;
 
     return (
-      <li className={styles.person} key={uniqueId('person_')}>
+      <li className={styles.person} key={id ? `person_${id}` : uniqueId('loading_')}>
         {!isLoading && 
           <Link to={`/people/${id}`} 
             className={styles.personLink + 
@@ -104,8 +104,8 @@ class HeroesList extends Component {
             useWindow={false}
           >
             <ul className={styles.peopleList}>
-              {people.map(i => this.renderListItem(i))}
-              {peopleToLoading.map(i => this.renderListItem(i))}
+              {people.map(this.renderListItem)}
+              {peopleToLoading.map(this.renderListItem)}
             </ul>
           </InfiniteScroll>
         </Scrollbars>

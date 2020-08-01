@@ -2,7 +2,7 @@ import * as types from './actionTypes';
 import { get, isNull } from 'lodash';
 
 const initialState = {
-  nextPage: 'https://swapi.co/api/people/',
+  nextPage: 'https://swapi.dev/api/people/',
   peopleCount: null,
   peopleCache: [],
   planetsCache: [],

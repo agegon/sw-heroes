@@ -22,7 +22,7 @@ function* fetchPeopleAsync(action) {
 }
 
 function* fetchPersonAsync(action) {
-  const url = `https://swapi.co/api/people/${action.id}/`;
+  const url = `https://swapi.dev/api/people/${action.id}/`;
   let person = yield select(getPerson, url);
   try {
     yield put(requestPersonStarted());
