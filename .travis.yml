@@ -8,6 +8,7 @@ branches:
   only:
   - master
   - creating-layout
+  - develop
 env:
   global:
   - REMOTE_APP_DIR="/var/www/html/sw-heroes.git"

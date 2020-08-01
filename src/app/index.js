@@ -6,7 +6,7 @@ import createSagaMiddleware from 'redux-saga';
 
 import App from './App';
 import reducer from './store/reducer';
-import watcher from './store/saga';
+import { watcher, watchData} from './store/saga';
 
 import './index.scss';
 
@@ -14,6 +14,7 @@ const sagaMiddleware = createSagaMiddleware();
 
 const store = createStore(reducer, applyMiddleware(sagaMiddleware));
 sagaMiddleware.run(watcher);
+sagaMiddleware.run(watchData);
 
 ReactDOM.render(
   <Provider store={store}>

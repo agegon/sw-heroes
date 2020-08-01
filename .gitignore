@@ -1,3 +1,4 @@
 node_modules
 public
 .travis/deploy
+package-lock.json

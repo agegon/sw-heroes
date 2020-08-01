@@ -3,6 +3,7 @@ import { connect } from  'react-redux';
 import { Link } from 'react-router-dom';
 
 import InfiniteScroll from 'react-infinite-scroller';
+import { Scrollbars } from 'react-custom-scrollbars';
 import { isNull, uniqueId } from 'lodash';
 import { fetchPeople } from '../store/actions';
 import * as styles from './HeroesList.scss';
@@ -66,16 +67,16 @@ class HeroesList extends Component {
     }
   }
 
-  renderListItem = ({name = '', isLoading = false, id}) => {
+  renderListItem = ({name = '', isLoading = false, id}, index) => {
     const firstChar = name.length > 0 ? name[0] : '';
     const linkIsActive = this.props.match.params.id === id;
 
     return (
-      <li className={styles.person} key={uniqueId('person_')}>
+      <li className={styles.person} key={id ? `person_${id}` : uniqueId('loading_')}>
         {!isLoading && 
           <Link to={`/people/${id}`} 
             className={styles.personLink + 
-              (linkIsActive ? ' ' + styles.PersonLinkActive : '')
+              (linkIsActive ? ' ' + styles.personLinkActive : '')
             }
           >
             <div className={styles.personAvatar}>
@@ -96,16 +97,18 @@ class HeroesList extends Component {
     const { people } = this.props;
     return (
       <div className={styles.people}>
-        <InfiniteScroll
-          loadMore={this.scrollHandler}
-          hasMore={hasMore}
-          useWindow={false}
-        >
-          <ul className={styles.peopleList}>
-            {people.map(i => this.renderListItem(i))}
-            {peopleToLoading.map(i => this.renderListItem(i))}
-          </ul>
-        </InfiniteScroll>
+        <Scrollbars>
+          <InfiniteScroll
+            loadMore={this.scrollHandler}
+            hasMore={hasMore}
+            useWindow={false}
+          >
+            <ul className={styles.peopleList}>
+              {people.map(this.renderListItem)}
+              {peopleToLoading.map(this.renderListItem)}
+            </ul>
+          </InfiniteScroll>
+        </Scrollbars>
       </div>
     );
   }
